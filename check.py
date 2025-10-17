@@ -1,7 +1,3 @@
-# git clone https://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@github.com/shadabkhan87/beardstylegan.git
-# git clone https://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@github.com/YuvrajBalagoni/multihairgan.git
-
-
 # import os
 # import shutil
 
