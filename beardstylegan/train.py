@@ -221,5 +221,4 @@ train()
 
 """
 python beardstylegan/train.py
-azcopy copy "small_dataset" "https://firstprodstorage01.blob.core.windows.net/ageai-data/attribute_datasets/pose_change/small_dataset?sv=2024-11-04&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2026-01-31T23:58:36Z&st=2025-09-02T15:43:36Z&spr=https&sig=%2FdWqSWvlvrtB5IuqV3PJ6gj2hI7Dxo8Zg1Vq4DznwCg%3D" --recursive
 """
