@@ -34,9 +34,9 @@ class Discriminator(nn.Module):
     #    x = model_utils.append_age_channel(x, ages) 
     #    return self.layers(x.float())
     
-    def forward(self, images):
+    def forward(self, images, landmark):
     #    x = model_utils.append_age_channel(images, ages) 
-        x = images
+        x = torch.cat([images, landmark], dim=1)
         return self.layers(x.float())
 
     def discriminator_block(self, in_channels, out_channels, kernel_size=4, stride=2, padding=0, normalize=True):

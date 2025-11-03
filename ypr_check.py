@@ -6,7 +6,7 @@ import json
 
 data_dir = "YPR_Dataset/example"
 
-with open("data.json", "r") as f:
+with open("json_files/data.json", "r") as f:
     data_dict = json.load(f)
 
 fig, ax = plt.subplots(1, 3, figsize=(12, 4))

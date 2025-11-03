@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import torchvision.transforms.functional as TF
 from tqdm.auto import tqdm
 import mediapipe as mp
+import cv2
 
 import loss
 import video_dataset
@@ -37,10 +38,10 @@ import wandb
 15 - (0.15 to 0.0)
 16 - (0.15 to 0.15)
 """ 
-wandb.init(project="CPModel", name="run_4.3", config={
-    "epochs": 1000,
+wandb.init(project="CPModel", name="run_8.1", config={
+    "epochs": 10000,
     "batch_size": 5,
-    "description": "Refined dataset",
+    "description": "normalized & tanh output",
 })
 
 data_loaders=video_dataset.get_dataloaders()
@@ -58,19 +59,19 @@ def log_metrics(iteration, saved_discriminator_loss, saved_generator_loss, l1_lo
         "adversarial_loss": adversarial_loss
     })
 
-
 def save_output(epoch, iteration, run_name, samples, output, generator):
     generator.eval()
     output_prefix = f"{run_name}_{epoch}_{iteration // 5000}"
-    output_dir = "infer_output_test_img"
+    output_dir = "overfit_output"
+    os.makedirs(output_dir, exist_ok=True)
     testim_1_score_1 = inference.run('infer_imgs/LiamNeesonJ118_0.jpg', 'infer_landmark/-20_yaw_latest/landmark_-20_1.5_-2_LiamNeesonJ118_0.jpg', generator=generator, output_path=f"{output_dir}/inference_LiamNeeson_{output_prefix}.jpg")
-    testim_1_score_2 = inference.run('temp_dataset/train/7n619EfuSPw_16/frame_00135.jpg', 'temp_dataset_landmark/train/7n619EfuSPw_16/frame_00192.jpg', generator=generator, output_path=f"{output_dir}/inference_Asmilekid_0_{output_prefix}.jpg")
-    testim_1_score_2 = inference.run('temp_dataset/train/7n619EfuSPw_16/frame_00192.jpg', 'temp_dataset_landmark/train/7n619EfuSPw_16/frame_00135.jpg', generator=generator, output_path=f"{output_dir}/inference_Asmilekid_1_{output_prefix}.jpg")
-    testim_1_score_3 = inference.run('temp_dataset/train/7tW66KxBOaQ_9/frame_00066.jpg', 'temp_dataset_landmark/train/7tW66KxBOaQ_9/frame_00088.jpg', generator=generator, output_path=f"{output_dir}/inference_lady_0_{output_prefix}.jpg")
-    testim_1_score_3 = inference.run('temp_dataset/train/7tW66KxBOaQ_9/frame_00088.jpg', 'temp_dataset_landmark/train/7tW66KxBOaQ_9/frame_00066.jpg', generator=generator, output_path=f"{output_dir}/inference_lady_1_{output_prefix}.jpg")
-    # testim_1_score_4 = inference.run('CelebV-HQ/video_data/test/_0tf2n3rlJU_0/00060.jpg', 'CelebV-HQ/video_data_landmark/test/_0tf2n3rlJU_0/00000.jpg', generator=generator, output_path=f"{output_dir}/inference_{output_prefix}_60_00.jpg")
-    # testim_1_score_5 = inference.run('CelebV-HQ/video_data/test/_0tf2n3rlJU_0/00045.jpg', 'CelebV-HQ/video_data_landmark/test/_0tf2n3rlJU_0/00075.jpg', generator=generator, output_path=f"{output_dir}/inference_{output_prefix}_45_75.jpg")
-    # testim_1_score_6 = inference.run('CelebV-HQ/video_data/test/_0tf2n3rlJU_0/00000.jpg', 'CelebV-HQ/video_data_landmark/test/_0tf2n3rlJU_0/00045.jpg', generator=generator, output_path=f"{output_dir}/inference_{output_prefix}_00_45.jpg")
+    # testim_1_score_2 = inference.run('infer_imgs/leo.png', 'infer_landmark/-20_yaw_latest/landmark_-20_1.5_-2_leo.png', generator=generator, output_path=f"{output_dir}/inference_Asmilekid_0_{output_prefix}.jpg")
+    testim_1_score_2 = inference.run('small_dataset/data/8NWCghjb59k_4/frame_00000.jpg', 'small_dataset/landmark/8NWCghjb59k_4/frame_00036.jpg', generator=generator, output_path=f"{output_dir}/01_inference_man{output_prefix}.jpg")
+    testim_1_score_3 = inference.run('small_dataset/data/7tW66KxBOaQ_9/frame_00066.jpg', 'small_dataset/landmark/7tW66KxBOaQ_9/frame_00088.jpg', generator=generator, output_path=f"{output_dir}/inference_lady_0_{output_prefix}.jpg")
+    testim_1_score_3 = inference.run('small_dataset/data/7tW66KxBOaQ_9/frame_00088.jpg', 'small_dataset/landmark/7tW66KxBOaQ_9/frame_00066.jpg', generator=generator, output_path=f"{output_dir}/inference_lady_1_{output_prefix}.jpg")
+    testim_1_score_4 = inference.run('small_dataset/data/9aGq0b2vzUQ_3/frame_00245.jpg', 'small_dataset/landmark/9aGq0b2vzUQ_3/frame_00305.jpg', generator=generator, output_path=f"{output_dir}/02_oldman_inference_{output_prefix}.jpg")
+    testim_1_score_5 = inference.run('refined_dataset/train/_a-pB_5eRt0_6/frame_00004.jpg', 'refined_dataset_landmark/train/_a-pB_5eRt0_6/frame_00090.jpg', generator=generator, output_path=f"{output_dir}/00_anthonyrusso_inference_{output_prefix}.jpg")
+    testim_1_score_6 = inference.run('refined_dataset/train/7aXBcMlaxX0_17/frame_00068.jpg', 'refined_dataset_landmark/train/7aXBcMlaxX0_17/frame_00212.jpg', generator=generator, output_path=f"{output_dir}/001_kevinfiege_inference_{output_prefix}.jpg")
     # testim_1_score_7 = inference.run('CelebV-HQ/video_data/test/_0tf2n3rlJU_0/00075.jpg', 'CelebV-HQ/video_data_landmark/test/_0tf2n3rlJU_0/00045.jpg', generator=generator, output_path=f"{output_dir}/inference_{output_prefix}_75_45.jpg")
     # testim_1_score_8 = inference.run('refined_dataset/train/_W4Em_fHubY_15/frame_00235.jpg', 'refined_dataset_landmark/train/_W4Em_fHubY_15/frame_00364.jpg', generator=generator, output_path=f"{output_dir}/inference_train_sample_{output_prefix}.jpg")
     # testim_1_score_9 = inference.run('refined_dataset/train/_r-SkfDZphk_2/frame_00006.jpg', 'refined_dataset/train/_r-SkfDZphk_2/frame_00041.jpg', generator=generator, output_path=f"{output_dir}/inference_train_sample_2_{output_prefix}.jpg")
@@ -115,7 +116,7 @@ def save_output(epoch, iteration, run_name, samples, output, generator):
 
 def save_checkpoint(epoch, iteration, run_name, generator, discriminator, generator_optim, discriminator_optim, mean_loss, description):
     os.makedirs('checkpoints', exist_ok=True)
-    checkpoint_path = f"checkpoints/LandmarkGAN_deeper_{run_name}_{epoch+1}_{iteration // 5000}.pt"
+    checkpoint_path = f"checkpoints/00_Overfit_LandmarkGAN_deeper_{run_name}_{epoch+1}_{iteration // 5000}.pt"
     torch.save({
         'epoch': epoch,
         'description': description,
@@ -126,37 +127,73 @@ def save_checkpoint(epoch, iteration, run_name, generator, discriminator, genera
         'loss': mean_loss,
     }, checkpoint_path)
 
+def print_sample(sample):
+    for i in range(sample['input_image'].shape[0]):
+        input_image = (sample["input_image"][i].cpu().numpy() * 255).astype(np.uint8).transpose((1, 2, 0))
+        print(input_image.shape)
+        target_image = (sample['target_image'][i].cpu().numpy() * 255).astype(np.uint8).transpose((1, 2, 0))
+        landmark_input_image = (sample['landmark_input_image'][i].cpu().numpy() * 255).astype(np.uint8).transpose((1, 2, 0))
+        landmark_target_image = (sample['landmark_target_image'][i].cpu().numpy() * 255).astype(np.uint8).transpose((1, 2, 0))
+        cv2.imwrite(f'{i}_input.png', input_image)
+        cv2.imwrite(f'{i}_target.png', target_image)
+        cv2.imwrite(f'{i}_landmark_target.png', landmark_target_image)
+        cv2.imwrite(f'{i}_landmark_input.png', landmark_input_image)
+    print('saved images --------------------------------------')
+
 def train():
-    run_name = "run_4.3"
-    run_description = "Refined dataset"
-    n_epochs = 1000
-    checkpoint_path = "checkpoints/LandmarkGAN_deeper_run_4.2_151_0.pt" # or specify path to checkpoint to resume training
+    run_name = "run_8.1"
+    run_description = "normalized & tanh output"
+    n_epochs = 10000
+    checkpoint_path = "checkpoints/00_Overfit_LandmarkGAN_deeper_run_8.0_641_0.pt" # or specify path to checkpoint to resume training
+    disc = True
+
+    # ===================================================================================================================================== #
+
+    # model_path = "CelebV-HQ/face_landmarker.task"
+    # base_options = mp.tasks.BaseOptions(
+    #     model_asset_path=model_path
+    # )
+    # options = mp.tasks.vision.FaceLandmarkerOptions(
+    #     base_options=base_options,
+    #     running_mode=mp.tasks.vision.RunningMode.IMAGE,
+    #     output_face_blendshapes=True,
+    # )
+    
+    # ===================================================================================================================================== #
 
     generator, discriminator, generator_optim, discriminator_optim, _ = utils.create_models_and_optimizers(checkpoint_path=checkpoint_path)
     generator.train()
     discriminator.train()
-
+    sample = False
     for epoch in range(n_epochs):
         iteration = 1
         print(f"Epoch {epoch+1}")
 
         mean_generator_loss = 0
         mean_discriminator_loss = 0
-
+        if not disc:
+            discriminator_loss = 0.0
+        
         for samples in tqdm(train_loader):
+
+            if sample:
+                sample = False
+                print_sample(samples)
+            
             output = generator(samples['input_image'], samples['landmark_target_image'])
 
             # Train discriminator
-            discriminator_optim.zero_grad()
-            discriminator_loss = loss.get_discriminator_loss(discriminator, criterion, output.detach(), samples['input_image'], samples['target_image'])
-            discriminator_loss.backward()
-            discriminator_optim.step()
-            mean_discriminator_loss += discriminator_loss.item() / len(train_loader)
+            if disc:
+                discriminator_optim.zero_grad()
+                discriminator_loss = loss.get_discriminator_loss(discriminator, criterion, output.detach(), samples['input_image'], samples['target_image'], samples['landmark_target_image'], samples['landmark_input_image'])
+                discriminator_loss.backward()
+                discriminator_optim.step()
+                mean_discriminator_loss += discriminator_loss.item() / len(train_loader)
 
             # Train generator
             generator_optim.zero_grad()
             generator_loss, l1_loss, lpips_loss, adversarial_loss = loss.loss_function(
-                output, discriminator, samples['input_image'], samples['target_image']
+                output, discriminator, samples['input_image'], samples['target_image'], samples['landmark_target_image']
             )
             generator_loss.backward()
             generator_optim.step()
@@ -165,12 +202,16 @@ def train():
             # Log metrics
             if iteration % 10 == 0:
                 log_metrics(iteration, discriminator_loss.item(), generator_loss.item(), l1_loss, lpips_loss, adversarial_loss)
+            # if iteration % 10 == 0:
+            #     log_metrics(iteration, discriminator_loss, generator_loss.item(), l1_loss, lpips_loss, adversarial_loss)
 
             # Save outputs and checkpoints
-            if epoch % 10 == 0 and iteration == 1:
+            # if epoch % 20 == 0 and iteration == 1:
+            #     save_output(epoch, iteration, run_name, samples, output, generator)
+            if iteration % 1000 == 0 or iteration == 10 and epoch % 10 == 0:
                 save_output(epoch, iteration, run_name, samples, output, generator)
 
-            if epoch % 10 == 0 and iteration == 1:
+            if iteration % 1000 == 0 or iteration == 10 and epoch % 10 == 0:
                 save_checkpoint(epoch, iteration, run_name, generator, discriminator, generator_optim, discriminator_optim,
                                 mean_generator_loss + mean_discriminator_loss, run_description)
 
@@ -180,4 +221,5 @@ train()
 
 """
 python beardstylegan/train.py
+azcopy copy "small_dataset" "https://firstprodstorage01.blob.core.windows.net/ageai-data/attribute_datasets/pose_change/small_dataset?sv=2024-11-04&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2026-01-31T23:58:36Z&st=2025-09-02T15:43:36Z&spr=https&sig=%2FdWqSWvlvrtB5IuqV3PJ6gj2hI7Dxo8Zg1Vq4DznwCg%3D" --recursive
 """

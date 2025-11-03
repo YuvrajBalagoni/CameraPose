@@ -5,11 +5,11 @@ from tqdm.auto import tqdm
 import matplotlib.pyplot as plt 
 import shutil
 
-with open("data.json", "r") as f:
+with open("json_files/data.json", "r") as f:
     data_dict = json.load(f)
 
 data_dir = "YPR_Dataset/example"
-output_data_dir = "refined_dataset"
+output_data_dir = "refined_dataset/train"
 os.makedirs(output_data_dir, exist_ok=True)
 
 yaw, pitch, roll = 0, 0, 0
@@ -80,5 +80,5 @@ fig, ax = plt.subplots()
 ax.plot(x, num_arr)
 plt.savefig("num_plot.png", dpi=300)
 
-with open("frames_data.json", "w") as f:
+with open("json_files/frames_data.json", "w") as f:
     json.dump(frames, f, indent=4)

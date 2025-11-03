@@ -5,10 +5,10 @@ import torchvision.transforms.functional as TF
 import os
 import logging
 
-DATA_DIR = "temp_dataset"
-LANDMARK_DIR = "temp_dataset_landmark"
+DATA_DIR = "overfit_data"
+LANDMARK_DIR = "overfit_data_landmark"
 CROP_SIZE = 512
-BATCH_SIZE = 6
+BATCH_SIZE = 5
 
 class ImagePairDataset(torch.utils.data.Dataset):
     def __init__(self, input_image_dir, landmark_dir, transform = None, device='cuda'):
@@ -90,11 +90,24 @@ class ImagePairDataset(torch.utils.data.Dataset):
             sample['landmark_target_image'] = TF.resize(sample['landmark_target_image'], (CROP_SIZE, CROP_SIZE))
             return sample
     
+    class Normalize(object):
+        def __init__(self):
+            self.means = (0.5, 0.5, 0.5)
+            self.std_devs = (0.5, 0.5, 0.5)
+
+        def __call__(self, sample):
+            sample['input_image'] = TF.normalize(sample['input_image'], self.means, self.std_devs)
+            sample['target_image'] = TF.normalize(sample['target_image'], self.means, self.std_devs)
+            sample['landmark_input_image'] = TF.normalize(sample['landmark_input_image'], self.means, self.std_devs)
+            sample['landmark_target_image'] = TF.normalize(sample['landmark_target_image'], self.means, self.std_devs)
+            return sample
+
     @staticmethod
     def get_transforms(device='cuda'):
         transform = transforms.Compose([
             ImagePairDataset.ToResize(),
             ImagePairDataset.ToTensor(device=device),
+            ImagePairDataset.Normalize()
         ])
         return transform
 

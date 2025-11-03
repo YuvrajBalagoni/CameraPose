@@ -57,8 +57,8 @@ options = mp.tasks.vision.FaceLandmarkerOptions(
     output_face_blendshapes=True,
 )
 
-image_dataset_path = "refined_dataset"
-landmark_dataset_path = "refined_dataset_landmark"
+image_dataset_path = "refined_dataset/train"
+landmark_dataset_path = "refined_dataset_landmark/train"
 os.makedirs(landmark_dataset_path, exist_ok=True)
 
 parent_dirs = os.listdir(image_dataset_path)
@@ -66,7 +66,7 @@ parent_dirs = os.listdir(image_dataset_path)
 no_lm = {}
 
 with mp.tasks.vision.FaceLandmarker.create_from_options(options) as landmarker:
-
+    count = 0
     for parent_dir in tqdm(parent_dirs):
         # print(f"----------------- Processing directory {parent_dir} -----------------")
         os.makedirs(os.path.join(landmark_dataset_path, parent_dir), exist_ok=True)
@@ -74,11 +74,17 @@ with mp.tasks.vision.FaceLandmarker.create_from_options(options) as landmarker:
         no_lm[parent_dir] = []
 
         for image_file in image_files:
+            if os.path.exists(os.path.join(landmark_dataset_path, parent_dir, image_file)):
+                continue
+            # print(f"path {parent_dir} - {image_file} does not exists --------------")
+            # count += 1
             mp_image = mp.Image.create_from_file(os.path.join(image_dataset_path, parent_dir, image_file))
 
             landmark_result = landmarker.detect(mp_image)
 
             if len(landmark_result.face_landmarks) == 0:
+                print("no face detected")
+                count += 1
                 no_lm[parent_dir].append(image_file)
                 continue
 
@@ -90,9 +96,10 @@ with mp.tasks.vision.FaceLandmarker.create_from_options(options) as landmarker:
             landmark_image = draw_landmarks(landmark_np, mp_image.width, mp_image.height)
             cv2.imwrite(os.path.join(landmark_dataset_path, parent_dir, image_file), landmark_image)
 
-with open('refined_no_landmarks.json', 'w') as f:
+with open('json_files/refined_no_landmarks.json', 'w') as f:
     json.dump(no_lm, f, indent=4)
 
+print(count)
     # print(landmark_np.shape)
     # landmark_np = np.array(landmark_result.face_landmarks[0])
     # print(landmark_np.shape)

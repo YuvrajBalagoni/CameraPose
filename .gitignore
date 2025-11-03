@@ -18,3 +18,10 @@
 /YPR_Dataset
 /amdgpu-install_7.0.1.70001-1_all.deb
 /json_files
+/overfit_data
+/overfit_data_landmark
+/overfit_output
+/refined_dataset_landmarks
+/small_data_out
+/small_dataset
+/python_code_map.json

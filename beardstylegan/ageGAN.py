@@ -14,7 +14,8 @@ class AgeGAN(torch.nn.Module):
         # x = model_utils.append_age_channel(input_images, target_ages)
         x = torch.cat([input_images, landmark], dim=1)
         output = self.unet(x.float())
-        output = F.sigmoid(output)
+        # output = F.sigmoid(output)
+        output = F.tanh(output)
         
         return output
 

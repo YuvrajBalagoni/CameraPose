@@ -3,10 +3,10 @@ import json
 import shutil
 
 source_dir = "CelebV-HQ/video_data_landmark/train"
-dest_dir = "refined_dataset_landmarks"
+dest_dir = "refined_dataset_landmark/train"
 os.makedirs(dest_dir, exist_ok=True)
 
-with open("frames_data.json", "r") as f:
+with open("json_files/frames_data.json", "r") as f:
     data_dict = json.load(f)
 
 count = 0
